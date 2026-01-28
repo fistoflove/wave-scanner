@@ -19,14 +19,7 @@ class RuntimeSelector
     public static function select(array $config): RuntimeInterface
     {
         $runtimeEnv = getenv('APP_RUNTIME');
-        $runtime = $config['runtime'] ?? (($runtimeEnv === false || $runtimeEnv === '') ? 'fpm' : $runtimeEnv);
-        if ($runtime === 'auto') {
-            if (extension_loaded('swoole') && class_exists('Swoole\\Http\\Server')) {
-                return self::createSwoole($config, 'swoole');
-            }
-            return new FpmDriver();
-        }
-
+        $runtime = $config['runtime'] ?? (($runtimeEnv === false || $runtimeEnv === '') ? 'swoole' : $runtimeEnv);
         if ($runtime === 'swoole') {
             if (!extension_loaded('swoole') || !class_exists('Swoole\\Http\\Server')) {
                 throw new FeatureNotSupportedException('Swoole runtime requested but Swoole is not available.');
@@ -47,14 +40,7 @@ class RuntimeSelector
             return self::createSwoole($config, 'portable_swoole');
         }
 
-        if ($runtime === 'fpm_amphp' || $runtime === 'amphp') {
-            if (!class_exists('Amp\\Http\\Client\\HttpClientBuilder')) {
-                throw new FeatureNotSupportedException('AMPHP runtime requested but AMPHP is not installed.');
-            }
-            return new AmpFpmDriver();
-        }
-
-        return new FpmDriver();
+        throw new FeatureNotSupportedException('Only swoole or portable_swoole runtimes are supported.');
     }
 
     /**

@@ -25,14 +25,12 @@ use PHAPI\Server\ErrorHandler;
 use PHAPI\Server\HttpKernel;
 use PHAPI\Server\MiddlewareManager;
 use PHAPI\Server\Router;
-use PHAPI\Services\AmpHttpClient;
-use PHAPI\Services\AmpTaskRunner;
-use PHAPI\Services\BlockingHttpClient;
 use PHAPI\Services\HttpClient;
 use PHAPI\Services\JobsManager;
 use PHAPI\Services\Realtime;
-use PHAPI\Services\SequentialTaskRunner;
 use PHAPI\Services\SwooleHttpClient;
+use PHAPI\Services\SwooleMySqlClient;
+use PHAPI\Services\SwooleRedisClient;
 use PHAPI\Services\SwooleTaskRunner;
 use PHAPI\Services\TaskRunner;
 
@@ -58,6 +56,8 @@ final class PHAPI
     private JobsScheduler $jobsScheduler;
     private DefaultEndpoints $defaultEndpoints;
     private ProviderLoader $providerLoader;
+    private ?SwooleRedisClient $redisClient = null;
+    private ?SwooleMySqlClient $mysqlClient = null;
     /**
      * @var array<int, \PHAPI\Core\ServiceProviderInterface>
      */
@@ -121,7 +121,6 @@ final class PHAPI
         $this->providers = $this->providerLoader->register($this->config['providers'] ?? [], $this->container, $this);
         $this->providerLoader->boot($this->providers, $this);
         $this->bootstrapper->registerSafetyMiddleware($this->middleware, $this->config);
-        $this->bootstrapper->configureDatabase($this->config, $this->runtimeManager->driver());
         $this->defaultEndpoints->register($this, $this->jobs, $this->config);
     }
 
@@ -180,7 +179,7 @@ final class PHAPI
     }
 
     /**
-     * Set a fallback callback for realtime operations in unsupported runtimes.
+     * Set a fallback callback for realtime operations when WebSockets are unavailable.
      *
      * @param callable(string, array<string, mixed>): void $fallback
      * @return self
@@ -241,9 +240,6 @@ final class PHAPI
      */
     public function onWorkerStart(callable $handler): self
     {
-        if ($this->runtimeManager->driver()->isLongRunning() === false && (bool)($this->config['debug'] ?? false)) {
-            error_log('PHAPI: onWorkerStart is Swoole-only and is ignored in FPM/AMPHP.');
-        }
         $this->runtimeManager->driver()->onWorkerStart($handler);
         return $this;
     }
@@ -833,6 +829,50 @@ final class PHAPI
     }
 
     /**
+     * Get the Swoole coroutine Redis client.
+     *
+     * @return SwooleRedisClient
+     */
+    public function redis(): SwooleRedisClient
+    {
+        if ($this->redisClient === null) {
+            $config = $this->config['redis'] ?? [];
+            $this->redisClient = new SwooleRedisClient([
+                'host' => (string)($config['host'] ?? '127.0.0.1'),
+                'port' => (int)($config['port'] ?? 6379),
+                'auth' => isset($config['auth']) && $config['auth'] !== '' ? (string)$config['auth'] : null,
+                'db' => isset($config['db']) ? (int)$config['db'] : null,
+                'timeout' => isset($config['timeout']) ? (float)$config['timeout'] : 1.0,
+            ]);
+        }
+
+        return $this->redisClient;
+    }
+
+    /**
+     * Get the Swoole coroutine MySQL client.
+     *
+     * @return SwooleMySqlClient
+     */
+    public function mysql(): SwooleMySqlClient
+    {
+        if ($this->mysqlClient === null) {
+            $config = $this->config['mysql'] ?? [];
+            $this->mysqlClient = new SwooleMySqlClient([
+                'host' => (string)($config['host'] ?? '127.0.0.1'),
+                'port' => (int)($config['port'] ?? 3306),
+                'user' => (string)($config['user'] ?? 'root'),
+                'password' => (string)($config['password'] ?? ''),
+                'database' => (string)($config['database'] ?? ''),
+                'charset' => (string)($config['charset'] ?? 'utf8mb4'),
+                'timeout' => isset($config['timeout']) ? (float)$config['timeout'] : 1.0,
+            ]);
+        }
+
+        return $this->mysqlClient;
+    }
+
+    /**
      * Generate a URL for a named route.
      *
      * @param string $name
@@ -1016,14 +1056,11 @@ final class PHAPI
     {
         $driver = $this->runtimeManager->driver();
         if ($driver instanceof SwooleDriver) {
-            return new SwooleTaskRunner();
+            $timeout = $this->config['task_timeout'] ?? null;
+            $timeoutValue = $timeout === null ? null : (float)$timeout;
+            return new SwooleTaskRunner($timeoutValue);
         }
-
-        if ($this->runtimeManager->capabilities()->supportsAsyncIo()) {
-            return new AmpTaskRunner();
-        }
-
-        return new SequentialTaskRunner();
+        throw new FeatureNotSupportedException('Task runner requires Swoole runtime.');
     }
 
     private function resolveHttpClient(): HttpClient
@@ -1032,12 +1069,7 @@ final class PHAPI
         if ($driver instanceof SwooleDriver) {
             return new SwooleHttpClient();
         }
-
-        if ($this->runtimeManager->capabilities()->supportsAsyncIo()) {
-            return new AmpHttpClient();
-        }
-
-        return new BlockingHttpClient();
+        throw new FeatureNotSupportedException('HTTP client requires Swoole runtime.');
     }
 
 }

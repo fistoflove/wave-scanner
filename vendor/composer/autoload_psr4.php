@@ -6,23 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Revolt\\' => array($vendorDir . '/revolt/event-loop/src'),
-    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'PHAPI\\' => array($vendorDir . '/phapi/phapi/src'),
-    'LibDNS\\' => array($vendorDir . '/daverandom/libdns/src'),
-    'League\\Uri\\' => array($vendorDir . '/league/uri-components', $vendorDir . '/league/uri', $vendorDir . '/league/uri-interfaces'),
-    'Kelunik\\Certificate\\' => array($vendorDir . '/kelunik/certificate/src'),
-    'Amp\\Sync\\' => array($vendorDir . '/amphp/sync/src'),
-    'Amp\\Socket\\' => array($vendorDir . '/amphp/socket/src'),
-    'Amp\\Serialization\\' => array($vendorDir . '/amphp/serialization/src'),
-    'Amp\\Process\\' => array($vendorDir . '/amphp/process/src'),
-    'Amp\\Pipeline\\' => array($vendorDir . '/amphp/pipeline/src'),
-    'Amp\\Parser\\' => array($vendorDir . '/amphp/parser/src'),
-    'Amp\\Http\\Client\\' => array($vendorDir . '/amphp/http-client/src'),
-    'Amp\\Http\\' => array($vendorDir . '/amphp/http/src', $vendorDir . '/amphp/hpack/src'),
-    'Amp\\Dns\\' => array($vendorDir . '/amphp/dns/src'),
-    'Amp\\Cache\\' => array($vendorDir . '/amphp/cache/src'),
-    'Amp\\ByteStream\\' => array($vendorDir . '/amphp/byte-stream/src'),
-    'Amp\\' => array($vendorDir . '/amphp/amp/src'),
 );

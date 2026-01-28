@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace PHAPI\Core;
 
 use PHAPI\Auth\AuthManager;
-use PHAPI\Database\DatabaseFacade;
-use PHAPI\Exceptions\FeatureNotSupportedException;
 use PHAPI\HTTP\Response;
 use PHAPI\PHAPI;
 use PHAPI\Runtime\DriverCapabilities;
@@ -17,6 +15,8 @@ use PHAPI\Services\HttpClient;
 use PHAPI\Services\JobsManager;
 use PHAPI\Services\Realtime;
 use PHAPI\Services\RealtimeManager;
+use PHAPI\Services\SwooleMySqlClient;
+use PHAPI\Services\SwooleRedisClient;
 use PHAPI\Services\TaskRunner;
 
 final class AppBootstrapper
@@ -64,6 +64,12 @@ final class AppBootstrapper
         $container->set(HttpClient::class, $httpClient);
         $container->set(AuthManager::class, $auth);
         $container->set('auth', $auth);
+        $container->singleton(SwooleRedisClient::class, static function () use ($app) {
+            return $app->redis();
+        });
+        $container->singleton(SwooleMySqlClient::class, static function () use ($app) {
+            return $app->mysql();
+        });
 
         $this->authConfigurator->registerMiddleware($middleware, $auth);
 
@@ -102,62 +108,6 @@ final class AppBootstrapper
                 return $next($request);
             });
         }
-    }
-
-    /**
-     * Configure optional database integration.
-     *
-     * @param array<string, mixed> $config
-     * @param \PHAPI\Runtime\RuntimeInterface $runtime
-     * @return void
-     */
-    public function configureDatabase(array $config, \PHAPI\Runtime\RuntimeInterface $runtime): void
-    {
-        $database = $config['database'] ?? null;
-        if ($database === null) {
-            return;
-        }
-
-        $driver = 'sqlite';
-        if (is_array($database) && isset($database['driver'])) {
-            $driver = (string)$database['driver'];
-        }
-
-        if ($driver === 'turso') {
-            if (!$runtime instanceof SwooleDriver) {
-                throw new FeatureNotSupportedException('Turso driver requires Swoole runtime.');
-            }
-
-            if (!class_exists(\Swoole\Coroutine\Http\Client::class)) {
-                throw new FeatureNotSupportedException('Turso driver requires the Swoole HTTP client.');
-            }
-
-            $url = is_array($database) ? ($database['turso_url'] ?? $database['url'] ?? null) : null;
-            $token = is_array($database) ? ($database['turso_token'] ?? $database['token'] ?? null) : null;
-            if (!is_string($url) || $url === '' || !is_string($token) || $token === '') {
-                throw new \RuntimeException('Turso configuration requires url and token.');
-            }
-
-            $options = is_array($database) ? ($database['options'] ?? []) : [];
-            DatabaseFacade::configureTurso($url, $token, is_array($options) ? $options : []);
-            return;
-        }
-
-        $path = is_array($database) ? ($database['path'] ?? null) : $database;
-        if (!is_string($path) || $path === '') {
-            return;
-        }
-
-        if (!class_exists(\PDO::class) || !extension_loaded('pdo_sqlite')) {
-            return;
-        }
-
-        $options = [];
-        if (is_array($database)) {
-            $options = $database['options'] ?? [];
-        }
-
-        DatabaseFacade::configure($path, is_array($options) ? $options : []);
     }
 
     /**

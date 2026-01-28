@@ -45,11 +45,11 @@ $api->onWorkerStart(function ($server, int $workerId): void {
 });
 
 $api->onRequestStart(function (Request $request): void {
-    // Request hook (all runtimes).
+    // Request hook.
 });
 
 $api->onRequestEnd(function (Request $request, Response $response): void {
-    // Request hook (all runtimes).
+    // Request hook.
 });
 
 $api->onShutdown(function (): void {
@@ -97,6 +97,35 @@ $api->get('/info', [ExampleStatusController::class, 'show']);
 $api->get('/plugin', function (): Response {
     $message = PHAPI::app()?->resolve('greeting');
     return Response::json(['message' => $message]);
+});
+
+$api->get('/redis', function (): Response {
+    $redis = PHAPI::app()?->redis();
+    if ($redis === null) {
+        return Response::error('Redis client unavailable', 500);
+    }
+
+    try {
+        $redis->set('phapi:hello', 'world', 30);
+        $value = $redis->get('phapi:hello');
+        return Response::json(['value' => $value]);
+    } catch (\Throwable $e) {
+        return Response::error('Redis error', 500, ['message' => $e->getMessage()]);
+    }
+});
+
+$api->get('/mysql', function (): Response {
+    $mysql = PHAPI::app()?->mysql();
+    if ($mysql === null) {
+        return Response::error('MySQL client unavailable', 500);
+    }
+
+    try {
+        $rows = $mysql->query('SELECT 1 AS ok');
+        return Response::json(['rows' => $rows]);
+    } catch (\Throwable $e) {
+        return Response::error('MySQL error', 500, ['message' => $e->getMessage()]);
+    }
 });
 
 $api->get('/jobs', function (): Response {

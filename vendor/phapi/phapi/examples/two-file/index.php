@@ -10,7 +10,7 @@ if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
 }
 
 $config = [
-    'runtime' => getenv('APP_RUNTIME') ?: 'fpm',
+    'runtime' => getenv('APP_RUNTIME') ?: 'swoole',
     'host' => '0.0.0.0',
     'port' => 9503,
     'debug' => true,
@@ -36,6 +36,22 @@ $config = [
             return null;
         },
         'session_key' => 'user',
+    ],
+    'redis' => [
+        'host' => getenv('REDIS_HOST') ?: '127.0.0.1',
+        'port' => (int)(getenv('REDIS_PORT') ?: 6379),
+        'auth' => getenv('REDIS_AUTH') ?: null,
+        'db' => getenv('REDIS_DB') !== false ? (int)getenv('REDIS_DB') : null,
+        'timeout' => getenv('REDIS_TIMEOUT') !== false ? (float)getenv('REDIS_TIMEOUT') : 1.0,
+    ],
+    'mysql' => [
+        'host' => getenv('MYSQL_HOST') ?: '127.0.0.1',
+        'port' => (int)(getenv('MYSQL_PORT') ?: 3306),
+        'user' => getenv('MYSQL_USER') ?: 'root',
+        'password' => getenv('MYSQL_PASSWORD') ?: '',
+        'database' => getenv('MYSQL_DATABASE') ?: '',
+        'charset' => getenv('MYSQL_CHARSET') ?: 'utf8mb4',
+        'timeout' => getenv('MYSQL_TIMEOUT') !== false ? (float)getenv('MYSQL_TIMEOUT') : 1.0,
     ],
 ];
 
