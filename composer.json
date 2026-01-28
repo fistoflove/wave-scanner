@@ -1,0 +1,17 @@
+{
+    "name": "locomotive/wave-scanner",
+    "authors": [
+      {
+        "name": "Vini S.",
+        "email": "vini@imsmarketing.ie"
+      }
+    ],
+    "repositories": [
+      { "type": "vcs", "url": "https://github.com/fistoflove/PHAPI.git" }
+    ],
+    "require": {
+        "phapi/phapi": "dev-main"
+    },
+    "require-dev": {},
+    "scripts": {}
+  }
