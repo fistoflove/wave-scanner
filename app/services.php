@@ -19,6 +19,11 @@ class MySqlPool
         self::$connections = [];
     }
 
+    public static function config(): array
+    {
+        return self::$config;
+    }
+
     public static function connection(): MySQL
     {
         if (!extension_loaded('swoole')) {
@@ -264,32 +269,40 @@ class DbStatement
 
 class DbConnection
 {
-    public function __construct(private MySQL $conn)
+    public function __construct(private ?MySQL $conn = null)
     {
+    }
+
+    private function conn(): MySQL
+    {
+        return $this->conn ?? MySqlPool::connection();
     }
 
     public function exec(string $sql): int
     {
-        $result = $this->conn->query($sql);
+        $conn = $this->conn();
+        $result = $conn->query($sql);
         if ($result === false) {
-            throw new RuntimeException('MySQL exec failed: ' . ($this->conn->error ?? 'unknown error'));
+            throw new RuntimeException('MySQL exec failed: ' . ($conn->error ?? 'unknown error'));
         }
-        return $this->conn->affected_rows ?? 0;
+        return $conn->affected_rows ?? 0;
     }
 
     public function query(string $sql): DbStatement
     {
-        $result = $this->conn->query($sql);
+        $conn = $this->conn();
+        $result = $conn->query($sql);
         if ($result === false) {
-            throw new RuntimeException('MySQL query failed: ' . ($this->conn->error ?? 'unknown error'));
+            throw new RuntimeException('MySQL query failed: ' . ($conn->error ?? 'unknown error'));
         }
         $rows = is_array($result) ? $result : [];
-        return new DbStatement($this->conn, $sql, $rows);
+        return new DbStatement($conn, $sql, $rows);
     }
 
     public function prepare(string $sql): DbStatement
     {
-        return new DbStatement($this->conn, $sql);
+        $conn = $this->conn();
+        return new DbStatement($conn, $sql);
     }
 
     public function lastInsertId(): int
@@ -306,10 +319,15 @@ class Database
 
     public function __construct(string $path = '', bool $migrate = true)
     {
-        $this->pdo = new DbConnection(MySqlPool::connection());
+        $this->pdo = new DbConnection();
 
         if ($migrate) {
-            $this->migrate();
+            $cid = class_exists(Coroutine::class) ? Coroutine::getCid() : -1;
+            if ($cid < 0) {
+                $this->migrateSync();
+            } else {
+                $this->migrate();
+            }
         }
     }
 
@@ -319,16 +337,38 @@ class Database
     }
     private function migrate(): void
     {
-        $this->pdo->exec(
+        foreach ($this->schemaStatements() as $sql) {
+            $this->pdo->exec($sql);
+        }
+    }
+
+    private function migrateSync(): void
+    {
+        $config = MySqlPool::config();
+        $dsn = sprintf(
+            'mysql:host=%s;port=%d;dbname=%s;charset=%s',
+            $config['host'] ?? '127.0.0.1',
+            $config['port'] ?? 3306,
+            $config['database'] ?? '',
+            $config['charset'] ?? 'utf8mb4'
+        );
+        $pdo = new PDO($dsn, $config['user'] ?? 'root', $config['password'] ?? '', [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        ]);
+        foreach ($this->schemaStatements() as $sql) {
+            $pdo->exec($sql);
+        }
+    }
+
+    private function schemaStatements(): array
+    {
+        return [
             "CREATE TABLE IF NOT EXISTS projects (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 slug VARCHAR(255) NOT NULL UNIQUE,
                 created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS config (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -338,10 +378,7 @@ class Database
                 UNIQUE KEY uniq_project_name (project_id, name),
                 KEY idx_config_project (project_id),
                 CONSTRAINT fk_config_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS urls (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -370,10 +407,7 @@ class Database
                 KEY idx_urls_project (project_id),
                 KEY idx_urls_active (project_id, active),
                 CONSTRAINT fk_urls_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS results (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -405,10 +439,7 @@ class Database
                 KEY idx_results_tested (project_id, tested_at),
                 CONSTRAINT fk_results_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 CONSTRAINT fk_results_url FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS audit_runs (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -419,10 +450,7 @@ class Database
                 KEY idx_audit_runs_project (project_id),
                 KEY idx_audit_runs_initiated (project_id, initiated_at),
                 CONSTRAINT fk_audit_runs_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS queue (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -437,10 +465,7 @@ class Database
                 KEY idx_queue_status (project_id, status),
                 CONSTRAINT fk_queue_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 CONSTRAINT fk_queue_url FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS errors (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -456,10 +481,7 @@ class Database
                 KEY idx_errors_created (project_id, created_at),
                 CONSTRAINT fk_errors_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 CONSTRAINT fk_errors_url FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE SET NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS issue_items (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -476,19 +498,13 @@ class Database
                 KEY idx_issue_items_viewport (project_id, viewport_label),
                 CONSTRAINT fk_issue_items_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 CONSTRAINT fk_issue_items_url FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS selectors (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 selector TEXT NOT NULL,
                 selector_hash CHAR(40) NOT NULL UNIQUE,
                 KEY idx_selectors_hash (selector_hash)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS issue_elements (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -512,19 +528,13 @@ class Database
                 KEY idx_issue_elements_viewport (project_id, viewport_label),
                 CONSTRAINT fk_issue_elements_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 CONSTRAINT fk_issue_elements_url FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS issue_docs (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 item_id VARCHAR(128) NOT NULL UNIQUE,
                 payload MEDIUMTEXT NOT NULL,
                 fetched_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS issue_suppressions (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -535,10 +545,7 @@ class Database
                 UNIQUE KEY uniq_issue_suppression (project_id, item_id, category),
                 KEY idx_issue_suppressions_project (project_id),
                 CONSTRAINT fk_issue_suppressions_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS issue_suppression_elements (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -556,10 +563,7 @@ class Database
                 KEY idx_issue_suppress_elements_category (project_id, category),
                 CONSTRAINT fk_issue_suppression_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 CONSTRAINT fk_issue_suppression_url FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS tags (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -567,10 +571,7 @@ class Database
                 UNIQUE KEY uniq_tags_project (project_id, name),
                 KEY idx_tags_project (project_id),
                 CONSTRAINT fk_tags_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS url_tags (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -582,10 +583,7 @@ class Database
                 CONSTRAINT fk_url_tags_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
                 CONSTRAINT fk_url_tags_url FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE,
                 CONSTRAINT fk_url_tags_tag FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS viewports (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -596,10 +594,7 @@ class Database
                 UNIQUE KEY uniq_viewports_project (project_id, label),
                 KEY idx_viewports_project (project_id),
                 CONSTRAINT fk_viewports_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-
-        $this->pdo->exec(
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
             "CREATE TABLE IF NOT EXISTS metrics_cache (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -611,8 +606,8 @@ class Database
                 UNIQUE KEY uniq_metrics_cache (project_id, cache_key),
                 KEY idx_metrics_cache_project (project_id),
                 CONSTRAINT fk_metrics_cache_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        ];
     }
 
 }
