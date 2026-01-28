@@ -1,75 +1,30 @@
-[22-Jan-2026 10:31:22 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PHAPI\PHAPI::task() in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php:129
-Stack trace:
-#0 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(330): require()
-#1 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app.php(64): PHAPI\PHAPI->loadApp()
-#2 {main}
-  thrown in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php on line 129
-[22-Jan-2026 10:46:48 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PHAPI\PHAPI::task() in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php:110
-Stack trace:
-#0 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(330): require()
-#1 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app.php(64): PHAPI\PHAPI->loadApp()
-#2 {main}
-  thrown in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php on line 110
-[22-Jan-2026 10:46:54 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PHAPI\PHAPI::task() in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php:110
-Stack trace:
-#0 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(330): require()
-#1 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app.php(64): PHAPI\PHAPI->loadApp()
-#2 {main}
-  thrown in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php on line 110
-[22-Jan-2026 11:11:59 UTC] PHP Fatal error:  Uncaught Error: Call to undefined method PHAPI\PHAPI::task() in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php:110
-Stack trace:
-#0 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(330): require()
-#1 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app.php(64): PHAPI\PHAPI->loadApp()
-#2 {main}
-  thrown in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php on line 110
-[22-Jan-2026 11:20:46 UTC] PHP Fatal error:  Cannot redeclare waveAnalyzeWithRetry() (previously declared in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php:3045) in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php on line 3068
-[22-Jan-2026 11:20:46 UTC] PHP Warning:  Swoole\Server::start(): eventLoop has already been created, unable to start Swoole\WebSocket\Server in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Runtime/SwooleDriver.php on line 87
-[22-Jan-2026 11:23:14 UTC] PHP Fatal error:  Uncaught Swoole\Error: must be forked outside the coroutine in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php:2868
-Stack trace:
-#0 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php(2868): Swoole\Process->start()
-#1 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php(36): BackgroundWorker->start()
-#2 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php(40): PHAPI\PHAPI->{closure}()
-#3 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(850): PHAPI\PHAPI->{closure}()
-#4 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(275): PHAPI\PHAPI->executeJobHandler()
-#5 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Core/JobsScheduler.php(40): PHAPI\PHAPI->PHAPI\{closure}()
-#6 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Services/JobsManager.php(182): PHAPI\Core\JobsScheduler->PHAPI\Core\{closure}()
-#7 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Services/JobsManager.php(122): PHAPI\Services\JobsManager->runJob()
-#8 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Core/JobsScheduler.php(39): PHAPI\Services\JobsManager->runScheduled()
-#9 [internal function]: PHAPI\Core\JobsScheduler->PHAPI\Core\{closure}()
-#10 {main}
-  thrown in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php on line 2868
-[23-Jan-2026 08:58:28 UTC] PHP Fatal error:  Uncaught Swoole\Error: must be forked outside the coroutine in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php:2875
-Stack trace:
-#0 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php(2875): Swoole\Process->start()
-#1 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php(36): BackgroundWorker->start()
-#2 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php(40): PHAPI\PHAPI->{closure}()
-#3 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(850): PHAPI\PHAPI->{closure}()
-#4 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(275): PHAPI\PHAPI->executeJobHandler()
-#5 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Core/JobsScheduler.php(40): PHAPI\PHAPI->PHAPI\{closure}()
-#6 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Services/JobsManager.php(182): PHAPI\Core\JobsScheduler->PHAPI\Core\{closure}()
-#7 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Services/JobsManager.php(122): PHAPI\Services\JobsManager->runJob()
-#8 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Core/JobsScheduler.php(39): PHAPI\Services\JobsManager->runScheduled()
-#9 [internal function]: PHAPI\Core\JobsScheduler->PHAPI\Core\{closure}()
-#10 {main}
-  thrown in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php on line 2875
-[23-Jan-2026 13:08:45 UTC] PHP Fatal error:  Uncaught Swoole\Error: must be forked outside the coroutine in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php:2875
-Stack trace:
-#0 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php(2875): Swoole\Process->start()
-#1 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php(36): BackgroundWorker->start()
-#2 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/jobs.php(40): PHAPI\PHAPI->{closure}()
-#3 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(850): PHAPI\PHAPI->{closure}()
-#4 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/PHAPI.php(275): PHAPI\PHAPI->executeJobHandler()
-#5 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Core/JobsScheduler.php(40): PHAPI\PHAPI->PHAPI\{closure}()
-#6 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Services/JobsManager.php(182): PHAPI\Core\JobsScheduler->PHAPI\Core\{closure}()
-#7 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Services/JobsManager.php(122): PHAPI\Services\JobsManager->runJob()
-#8 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Core/JobsScheduler.php(39): PHAPI\Services\JobsManager->runScheduled()
-#9 [internal function]: PHAPI\Core\JobsScheduler->PHAPI\Core\{closure}()
-#10 {main}
-  thrown in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/app/services.php on line 2875
-[23-Jan-2026 13:15:37 UTC] PHP Fatal error:  Uncaught Swoole\Error: must be forked outside the coroutine in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Runtime/SwooleDriver.php:347
-Stack trace:
-#0 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Runtime/SwooleDriver.php(347): Swoole\Process->start()
-#1 /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Runtime/SwooleDriver.php(137): PHAPI\Runtime\SwooleDriver->startProcessesForWorker()
-#2 [internal function]: PHAPI\Runtime\SwooleDriver->PHAPI\Runtime\{closure}()
-#3 {main}
-  thrown in /mnt/c/Users/vinib/Documents/ada-scanner/new-version/vendor/phapi/phapi/src/Runtime/SwooleDriver.php on line 347
+[28-Jan-2026 16:47:20 UTC] PHP Warning:  Swoole\Timer::after(): Timer must be greater than or equal to 1 in /workspaces/wave-scanner/vendor/phapi/phapi/src/Runtime/SwooleDriver.php on line 402
+[28-Jan-2026 16:47:49 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /workspaces/wave-scanner/app/routes.php on line 18
+[28-Jan-2026 16:47:54 UTC] Unhandled error: DbStatement::prepareStatement(): Return value must be of type Swoole\Coroutine\MySQL\Statement, false returned
+#0 /workspaces/wave-scanner/app/services.php(198): DbStatement->prepareStatement()
+#1 /workspaces/wave-scanner/app/services.php(1152): DbStatement->execute()
+#2 /workspaces/wave-scanner/app/services.php(1178): ViewportRepository->upsert()
+#3 /workspaces/wave-scanner/app/services.php(3447): ViewportRepository->ensureDefault()
+#4 /workspaces/wave-scanner/app/routes.php(53): MainState->projectState()
+#5 /workspaces/wave-scanner/app/routes.php(60): PHAPI\PHAPI->{closure}()
+#6 /workspaces/wave-scanner/app/routes.php(372): PHAPI\PHAPI->{closure}()
+#7 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(288): PHAPI\PHAPI->{closure}()
+#8 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(199): PHAPI\Server\HttpKernel->callHandler()
+#9 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(87): PHAPI\Server\HttpKernel->dispatch()
+#10 /workspaces/wave-scanner/app/middlewares.php(30): PHAPI\Server\HttpKernel->PHAPI\Server\{closure}()
+#11 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(188): PHAPI\PHAPI->{closure}()
+#12 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(162): PHAPI\Server\HttpKernel->callMiddleware()
+#13 /workspaces/wave-scanner/app/middlewares.php(10): PHAPI\Server\HttpKernel->PHAPI\Server\{closure}()
+#14 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(188): PHAPI\PHAPI->{closure}()
+#15 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(162): PHAPI\Server\HttpKernel->callMiddleware()
+#16 /workspaces/wave-scanner/vendor/phapi/phapi/src/PHAPI.php(811): PHAPI\Server\HttpKernel->PHAPI\Server\{closure}()
+#17 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(188): PHAPI\PHAPI->PHAPI\{closure}()
+#18 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(162): PHAPI\Server\HttpKernel->callMiddleware()
+#19 /workspaces/wave-scanner/vendor/phapi/phapi/src/Core/AppBootstrapper.php(108): PHAPI\Server\HttpKernel->PHAPI\Server\{closure}()
+#20 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(188): PHAPI\Core\AppBootstrapper::PHAPI\Core\{closure}()
+#21 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(162): PHAPI\Server\HttpKernel->callMiddleware()
+#22 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(172): PHAPI\Server\HttpKernel->PHAPI\Server\{closure}()
+#23 /workspaces/wave-scanner/vendor/phapi/phapi/src/Server/HttpKernel.php(90): PHAPI\Server\HttpKernel->runMiddlewareStack()
+#24 /workspaces/wave-scanner/vendor/phapi/phapi/src/Runtime/SwooleDriver.php(153): PHAPI\Server\HttpKernel->handle()
+#25 [internal function]: PHAPI\Runtime\SwooleDriver->PHAPI\Runtime\{closure}()
+#26 {main}

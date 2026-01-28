@@ -3,7 +3,7 @@
         'name' => 'locomotive/wave-scanner',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '282bb752f6722c357b4af80063956d380043e56e',
+        'reference' => 'cc6e5abf8bb0f9ea0b4a0fbcbf605394c8ce5f27',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'locomotive/wave-scanner' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '282bb752f6722c357b4af80063956d380043e56e',
+            'reference' => 'cc6e5abf8bb0f9ea0b4a0fbcbf605394c8ce5f27',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -22,7 +22,7 @@
         'phapi/phapi' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '2c6a7570a6209f62366dc09ed71bfe119cf44ecd',
+            'reference' => '9eef84f87294a1fe4c665ee2287499ceedd5e2bb',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phapi/phapi',
             'aliases' => array(

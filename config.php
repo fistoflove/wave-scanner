@@ -2,10 +2,10 @@
 
 return [
     // Core
-    'APP_RUNTIME' => 'swoole',
+    'APP_RUNTIME' => 'portable_swoole',
     'APP_HOST' => '0.0.0.0',
     'APP_PORT' => 9504,
-    'APP_DEBUG' => false,
+    'APP_DEBUG' => true,
     'APP_MAX_BODY' => 1024 * 1024 * 5,
 
     // Auth (optional overrides)

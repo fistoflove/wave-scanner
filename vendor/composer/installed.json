@@ -7,12 +7,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fistoflove/PHAPI.git",
-                "reference": "2c6a7570a6209f62366dc09ed71bfe119cf44ecd"
+                "reference": "9eef84f87294a1fe4c665ee2287499ceedd5e2bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fistoflove/PHAPI/zipball/2c6a7570a6209f62366dc09ed71bfe119cf44ecd",
-                "reference": "2c6a7570a6209f62366dc09ed71bfe119cf44ecd",
+                "url": "https://api.github.com/repos/fistoflove/PHAPI/zipball/9eef84f87294a1fe4c665ee2287499ceedd5e2bb",
+                "reference": "9eef84f87294a1fe4c665ee2287499ceedd5e2bb",
                 "shasum": ""
             },
             "require": {
@@ -29,7 +29,7 @@
             "suggest": {
                 "ext-swoole": "Required for the Swoole runtime."
             },
-            "time": "2026-01-28T15:29:38+00:00",
+            "time": "2026-01-28T16:44:40+00:00",
             "default-branch": true,
             "bin": [
                 "bin/phapi-run",
