@@ -319,7 +319,7 @@ class Database
     }
     private function migrate(): void
     {
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS projects (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
@@ -328,7 +328,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS config (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -341,7 +341,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS urls (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -373,7 +373,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS results (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -408,7 +408,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS audit_runs (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -422,7 +422,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS queue (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -440,7 +440,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS errors (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -459,7 +459,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS issue_items (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -479,7 +479,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS selectors (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 selector TEXT NOT NULL,
@@ -488,7 +488,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS issue_elements (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -515,7 +515,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS issue_docs (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 item_id VARCHAR(128) NOT NULL UNIQUE,
@@ -524,7 +524,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS issue_suppressions (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -538,7 +538,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS issue_suppression_elements (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -559,7 +559,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS tags (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -570,7 +570,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS url_tags (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -585,7 +585,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS viewports (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
@@ -599,7 +599,7 @@ class Database
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
-        ->pdo->exec(
+        $this->pdo->exec(
             "CREATE TABLE IF NOT EXISTS metrics_cache (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
