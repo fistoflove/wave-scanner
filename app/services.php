@@ -243,12 +243,18 @@ class DbStatement
     {
         if (array_is_list($params)) {
             $stmt = $this->conn->prepare($this->sql);
+            if ($stmt === false) {
+                throw new RuntimeException('MySQL prepare failed: ' . ($this->conn->error ?? 'unknown error'));
+            }
             return $stmt;
         }
 
         [$sql, $ordered] = $this->normalizeNamedParams($this->sql, $params);
         $params = $ordered;
         $stmt = $this->conn->prepare($sql);
+        if ($stmt === false) {
+            throw new RuntimeException('MySQL prepare failed: ' . ($this->conn->error ?? 'unknown error'));
+        }
         return $stmt;
     }
 
@@ -588,13 +594,18 @@ class Database
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,
                 label VARCHAR(64) NOT NULL,
-                width INT NOT NULL,
+                viewport_width INT NOT NULL,
                 eval_delay INT NOT NULL DEFAULT 250,
                 user_agent TEXT,
+                scan_enabled TINYINT(1) NOT NULL DEFAULT 1,
+                report_enabled TINYINT(1) NOT NULL DEFAULT 1,
                 UNIQUE KEY uniq_viewports_project (project_id, label),
                 KEY idx_viewports_project (project_id),
                 CONSTRAINT fk_viewports_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+            "ALTER TABLE viewports ADD COLUMN IF NOT EXISTS viewport_width INT NOT NULL DEFAULT 1200",
+            "ALTER TABLE viewports ADD COLUMN IF NOT EXISTS scan_enabled TINYINT(1) NOT NULL DEFAULT 1",
+            "ALTER TABLE viewports ADD COLUMN IF NOT EXISTS report_enabled TINYINT(1) NOT NULL DEFAULT 1",
             "CREATE TABLE IF NOT EXISTS metrics_cache (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 project_id BIGINT UNSIGNED NOT NULL,

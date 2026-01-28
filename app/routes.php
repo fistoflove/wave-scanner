@@ -14,6 +14,9 @@ $dashboardTemplate = require __DIR__ . '/views/dashboard.php';
 $loginTemplate = require __DIR__ . '/views/login.php';
 
 $ensureSession = function (): void {
+    if (headers_sent()) {
+        return;
+    }
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start();
     }
